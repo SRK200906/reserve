@@ -513,6 +513,40 @@
             }
         }
 
+        // Added missing updateUISelectionState helper function
+        function updateUISelectionState() {
+            const countBadge = document.getElementById('selected-count-badge');
+            const listContainer = document.getElementById('selected-slots-list');
+            const proceedBtn = document.getElementById('proceed-btn');
+
+            if (countBadge) countBadge.innerText = `${selectedSlots.length} ช่อง`;
+
+            if (listContainer) {
+                if (selectedSlots.length === 0) {
+                    listContainer.innerHTML = `<span class="text-xs text-slate-500 italic">ยังไม่ได้เลือกช่อง (คลิกที่ช่องในผังด้านบน)</span>`;
+                } else {
+                    let html = '';
+                    selectedSlots.forEach(s => {
+                        html += `
+                            <span class="inline-flex items-center bg-indigo-900/60 border border-indigo-500/40 text-indigo-200 text-xs px-2.5 py-1 rounded-lg">
+                                📍 ${s.room}: ${s.id}
+                                <button type="button" onclick="removeSingleSelection('${s.id}')" class="ml-1.5 text-indigo-400 hover:text-rose-400 font-bold">×</button>
+                            </span>
+                        `;
+                    });
+                    listContainer.innerHTML = html;
+                }
+            }
+
+            if (proceedBtn) {
+                if (selectedSlots.length > 0) {
+                    proceedBtn.removeAttribute('disabled');
+                } else {
+                    proceedBtn.setAttribute('disabled', 'true');
+                }
+            }
+        }
+
         function updateUI() {
             document.querySelectorAll('.slot-card').forEach(card => {
                 let slotId = card.id.replace('slot-', '');
