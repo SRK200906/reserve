@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMORXCU Storage Booking</title>
+    <title>SMORXCU Storage Booking - ระบบจองพื้นที่เก็บของ</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -12,9 +12,9 @@
             theme: {
                 extend: {
                     colors: {
-                        darkBg: '#090d16',
-                        cardBg: '#131c31',
-                        accent: '#6366f1'
+                        darkBg: '#0b0f19',
+                        cardBg: '#131c2e',
+                        borderCol: '#1e293b'
                     }
                 }
             }
@@ -24,554 +24,633 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Prompt', sans-serif; }
-        /* Smooth touch scrolling */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white pb-12">
+<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col antialiased">
 
-    <!-- Sticky Header for Mobile -->
-    <header class="bg-cardBg/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 shadow-lg">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-2.5">
-                <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-md shadow-indigo-500/30 text-sm">📦</div>
-                <div>
-                    <h1 class="text-xs sm:text-sm font-bold tracking-tight">SMORXCU Storage</h1>
-                    <p class="text-[10px] text-slate-400">ระบบจองพื้นที่วางของ (มือถือ)</p>
+    <!-- Header -->
+    <header class="bg-cardBg border-b border-borderCol sticky top-0 z-40 shadow-md">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-indigo-600 p-2 rounded-xl text-white font-bold text-base shadow-lg shadow-indigo-500/30">📦</div>
+                    <div>
+                        <h1 class="text-base font-bold text-slate-100 leading-tight">SMORXCU Storage</h1>
+                        <p class="text-[11px] text-slate-400">ระบบจองพื้นที่เก็บของ (ตามผังห้องจริง)</p>
+                    </div>
                 </div>
             </div>
-            <!-- Room Tabs -->
-            <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-                <button onclick="switchTab('room1')" id="btn-room1" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow">ศูนย์กิจ</button>
-                <button onclick="switchTab('room2')" id="btn-room2" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-slate-200">ห้องสโม</button>
+            <!-- Room Switcher Tabs -->
+            <div class="flex w-full sm:w-auto bg-slate-900/80 p-1 rounded-xl border border-borderCol">
+                <button onclick="switchRoom('center')" id="tab-center" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow">
+                    🏢 ห้องศูนย์กิจ
+                </button>
+                <button onclick="switchRoom('samo')" id="tab-samo" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">
+                    🏛️ ห้องสโม
+                </button>
             </div>
         </div>
     </header>
 
     <!-- Main Container -->
-    <main class="flex-grow max-w-4xl w-full mx-auto px-3 sm:px-4 py-4 space-y-4">
-        
-        <!-- Status Indicator Bar -->
-        <div class="bg-cardBg border border-slate-800 p-3 rounded-2xl flex items-center justify-around text-xs shadow">
-            <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block shadow-sm"></span><span class="text-slate-300 font-medium">ว่าง</span></div>
-            <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block shadow-sm"></span><span class="text-slate-300 font-medium">บางส่วน</span></div>
-            <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-rose-500 inline-block shadow-sm"></span><span class="text-slate-300 font-medium">เต็ม</span></div>
+    <main class="flex-grow max-w-4xl w-full mx-auto p-3 sm:p-5 space-y-4">
+
+        <!-- Status Legend Bar -->
+        <div class="bg-cardBg px-4 py-2.5 rounded-2xl border border-borderCol flex flex-wrap items-center justify-between text-xs shadow-sm gap-2">
+            <span class="font-medium text-slate-300">สถานะ:</span>
+            <div class="flex items-center space-x-4">
+                <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block mr-1.5 shadow-sm shadow-emerald-500/50"></span> ว่าง</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block mr-1.5 shadow-sm shadow-amber-500/50"></span> ว่างบางส่วน</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-rose-500 inline-block mr-1.5 shadow-sm shadow-rose-500/50"></span> เต็ม/ไม่ว่าง</span>
+            </div>
         </div>
 
-        <!-- ROOM 1: ห้องศูนย์กิจ -->
-        <section id="view-room1" class="space-y-4">
-            <div class="bg-cardBg border border-slate-800 p-4 rounded-2xl space-y-3 shadow-xl">
-                <div class="flex justify-between items-start border-b border-slate-800 pb-2">
-                    <div>
-                        <h2 class="text-sm font-bold text-indigo-400">🏢 ผังห้องศูนย์กิจ</h2>
-                        <p class="text-[11px] text-slate-400 mt-0.5">ตู้เขียวด้านบนเลือกได้ 3 ชั้น | โซนซ้ายแบ่งแถวมีทางเดิน</p>
-                    </div>
-                    <span class="bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 text-[10px] px-2 py-0.5 rounded-md">🚪 ประตู (ล่างขวา)</span>
+        <!-- ================= ROOM 1: ห้องศูนย์กิจ ================= -->
+        <div id="room-center-view" class="space-y-4">
+            <!-- Room Header Card -->
+            <div class="bg-cardBg p-4 rounded-2xl border border-borderCol flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div>
+                    <h2 class="text-base font-bold text-indigo-400 flex items-center">
+                        🏢 ผังห้องศูนย์กิจ 
+                        <span class="ml-2 text-[11px] font-normal px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">คลิกเลือกหลายช่องได้</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">ตู้เขียวด้านบนขยายได้ 3 ชั้น, โซนพื้นฝั่งซ้ายแบ่งบน-ล่าง มีทางเดินตรงกลางและทางเดินขวาสุด</p>
                 </div>
+                <div class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-xl self-end sm:self-auto">
+                    🚪 ประตู (ล่างขวา) ➡️ ห้องขวา
+                </div>
+            </div>
 
-                <!-- Green Top Cabinets -->
-                <div class="space-y-2">
-                    <div class="text-[11px] font-semibold text-emerald-400">🟩 โซนตู้เขียวแถวบน (เลือกได้ 3 ชั้น)</div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div onclick="openRoom1TopRack('ตู้เขียว #1', 'R1-Top1')" id="slot-R1-Top1-Card" class="slot-card bg-emerald-950/20 border border-emerald-500/40 hover:border-indigo-500 p-3 rounded-xl cursor-pointer flex justify-between items-center transition shadow-sm">
-                            <span class="font-bold text-xs text-emerald-300">ตู้เขียว #1</span>
-                            <span id="badge-R1-Top1" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-medium">เลือกชั้น</span>
-                        </div>
-                        <div onclick="openRoom1TopRack('ตู้เขียว #2', 'R1-Top2')" id="slot-R1-Top2-Card" class="slot-card bg-emerald-950/20 border border-emerald-500/40 hover:border-indigo-500 p-3 rounded-xl cursor-pointer flex justify-between items-center transition shadow-sm">
-                            <span class="font-bold text-xs text-emerald-300">ตู้เขียว #2</span>
-                            <span id="badge-R1-Top2" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-medium">เลือกชั้น</span>
-                        </div>
-                        <div onclick="openRoom1TopRack('ตู้เขียว #3', 'R1-Top3')" id="slot-R1-Top3-Card" class="slot-card bg-emerald-950/20 border border-emerald-500/40 hover:border-indigo-500 p-3 rounded-xl cursor-pointer flex justify-between items-center transition shadow-sm">
-                            <span class="font-bold text-xs text-emerald-300">ตู้เขียว #3</span>
-                            <span id="badge-R1-Top3" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-medium">เลือกชั้น</span>
-                        </div>
-                        <div onclick="openRoom1TopRack('ตู้เขียว #4', 'R1-Top4')" id="slot-R1-Top4-Card" class="slot-card bg-emerald-950/20 border border-emerald-500/40 hover:border-indigo-500 p-3 rounded-xl cursor-pointer flex justify-between items-center transition shadow-sm">
-                            <span class="font-bold text-xs text-emerald-300">ตู้เขียว #4</span>
-                            <span id="badge-R1-Top4" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-medium">เลือกชั้น</span>
-                        </div>
+            <!-- Outer Room Box (Full Width 100%) -->
+            <div class="bg-cardBg p-4 sm:p-6 rounded-3xl border-2 border-indigo-500/30 shadow-xl space-y-6 relative">
+                <div class="absolute top-3 right-4 text-[11px] font-bold text-slate-500 tracking-wider uppercase">Floor Plan: ศูนย์กิจ</div>
+
+                <!-- 1. ตู้เขียวแถบน บน (4 ตู้ ขยายได้ 3 ชั้น) -->
+                <div>
+                    <div class="text-xs font-semibold text-emerald-400 mb-2 flex items-center">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> โซนตู้เขียวแถวบน (คลิกเพื่อเลือกชั้น 1-3)
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="green-cabinets-container">
+                        <!-- Rendered by JS -->
                     </div>
                 </div>
 
-                <!-- Corridor Marker -->
-                <div class="bg-slate-900/60 border border-slate-800 py-2 px-3 rounded-xl text-center text-[11px] text-indigo-300 font-medium flex items-center justify-center space-x-1.5">
-                    <span>🚶‍♂️</span><span>ทางเดินเชื่อมจากประตูไปยังห้องด้านขวา</span>
+                <!-- ทางเดินเชื่อมจากประตูไปยังห้องขวา / ช่องทางเดินระหว่างโซน -->
+                <div class="border border-dashed border-slate-700/60 bg-slate-900/40 rounded-xl p-2.5 text-center text-xs text-slate-400 flex items-center justify-center space-x-2">
+                    <span>🚶‍♂️</span>
+                    <span>ทางเดินจากประตู (ล่างขวา) เชื่อมไปยังห้องด้านในขวา และทางเดินแนวนอนระหว่างโซน</span>
                 </div>
 
-                <!-- Left Zone Grid -->
-                <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-2xl space-y-3">
-                    <div class="text-[11px] font-semibold text-indigo-400">🟪 โซนพื้นที่ฝั่งซ้าย (คลิกเลือกหลายช่องได้)</div>
-                    
-                    <!-- Top Row (#4, #5, #6) -->
-                    <div class="grid grid-cols-3 gap-2">
-                        <div id="slot-R1-4" onclick="toggleSlotSelection('ห้องศูนย์กิจ', 'R1-4')" class="slot-card bg-indigo-950/20 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl cursor-pointer flex flex-col justify-between h-20 transition shadow-sm">
-                            <div class="flex justify-between items-center"><span class="font-bold text-xs text-indigo-300">#4</span><span class="status-badge text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">ว่าง</span></div>
-                            <div class="text-[9px] text-slate-400 truncate">-</div>
-                        </div>
-                        <div id="slot-R1-5" onclick="toggleSlotSelection('ห้องศูนย์กิจ', 'R1-5')" class="slot-card bg-indigo-950/20 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl cursor-pointer flex flex-col justify-between h-20 transition shadow-sm">
-                            <div class="flex justify-between items-center"><span class="font-bold text-xs text-indigo-300">#5</span><span class="status-badge text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">ว่าง</span></div>
-                            <div class="text-[9px] text-slate-400 truncate">-</div>
-                        </div>
-                        <div id="slot-R1-6" onclick="toggleSlotSelection('ห้องศูนย์กิจ', 'R1-6')" class="slot-card bg-indigo-950/20 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl cursor-pointer flex flex-col justify-between h-20 transition shadow-sm">
-                            <div class="flex justify-between items-center"><span class="font-bold text-xs text-indigo-300">#6</span><span class="status-badge text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">ว่าง</span></div>
-                            <div class="text-[9px] text-slate-400 truncate">-</div>
-                        </div>
+                <!-- 2. โซนพื้นที่ฝั่งซ้าย (6 ช่อง แบ่งบน-ล่าง และมีทางเดินแนวนอนตรงกลาง) -->
+                <div class="space-y-3 pt-2">
+                    <div class="text-xs font-semibold text-indigo-300 flex items-center justify-between">
+                        <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-1.5"></span> โซนพื้นที่ฝั่งซ้าย (เลือกได้หลายช่อง)</span>
+                        <span class="text-[11px] text-slate-400">มีทางเดินขวาสุด</span>
                     </div>
 
-                    <!-- Horizontal Aisle -->
-                    <div class="border-y border-dashed border-indigo-500/30 py-1.5 text-center text-[11px] text-indigo-300 font-medium bg-indigo-950/10 rounded-lg">
-                        🚶‍♂️ ทางเดินแนวนอนตรงกลาง
+                    <!-- แถวบน: ช่อง #4, #5, #6 -->
+                    <div class="grid grid-cols-3 gap-2.5" id="center-top-row">
+                        <!-- Rendered by JS -->
                     </div>
 
-                    <!-- Bottom Row (#1, #2, #3) & Right Corridor -->
-                    <div class="grid grid-cols-4 gap-2 items-center">
-                        <div class="col-span-3 grid grid-cols-3 gap-2">
-                            <div id="slot-R1-1" onclick="toggleSlotSelection('ห้องศูนย์กิจ', 'R1-1')" class="slot-card bg-indigo-950/20 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl cursor-pointer flex flex-col justify-between h-20 transition shadow-sm">
-                                <div class="flex justify-between items-center"><span class="font-bold text-xs text-indigo-300">#1</span><span class="status-badge text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">ว่าง</span></div>
-                                <div class="text-[9px] text-slate-400 truncate">-</div>
-                            </div>
-                            <div id="slot-R1-2" onclick="toggleSlotSelection('ห้องศูนย์กิจ', 'R1-2')" class="slot-card bg-indigo-950/20 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl cursor-pointer flex flex-col justify-between h-20 transition shadow-sm">
-                                <div class="flex justify-between items-center"><span class="font-bold text-xs text-indigo-300">#2</span><span class="status-badge text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">ว่าง</span></div>
-                                <div class="text-[9px] text-slate-400 truncate">-</div>
-                            </div>
-                            <div id="slot-R1-3" onclick="toggleSlotSelection('ห้องศูนย์กิจ', 'R1-3')" class="slot-card bg-indigo-950/20 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl cursor-pointer flex flex-col justify-between h-20 transition shadow-sm">
-                                <div class="flex justify-between items-center"><span class="font-bold text-xs text-indigo-300">#3</span><span class="status-badge text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">ว่าง</span></div>
-                                <div class="text-[9px] text-slate-400 truncate">-</div>
-                            </div>
-                        </div>
-                        <div class="col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-2 text-center text-[10px] text-slate-400 h-20 flex flex-col justify-center items-center">
-                            <span>🚶‍♂️</span>
-                            <span class="leading-tight mt-1">ทางเดินขวาสุด</span>
-                        </div>
+                    <!-- ทางเดินแนวนอนตรงกลาง -->
+                    <div class="bg-slate-900/60 border-y border-dashed border-slate-700/60 py-2 text-center text-xs text-slate-400 flex items-center justify-center space-x-2">
+                        <span>🚶‍♂️</span>
+                        <span>ทางเดินแนวนอนตรงกลางโซน</span>
+                    </div>
+
+                    <!-- แถบล่าง: ช่อง #1, #2, #3 -->
+                    <div class="grid grid-cols-3 gap-2.5" id="center-bottom-row">
+                        <!-- Rendered by JS -->
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- ROOM 2: ห้องสโม -->
-        <section id="view-room2" class="space-y-4 hidden">
-            <div class="bg-cardBg border border-slate-800 p-4 rounded-2xl space-y-3 shadow-xl">
-                <div class="flex justify-between items-start border-b border-slate-800 pb-2">
-                    <div>
-                        <h2 class="text-sm font-bold text-blue-400">🏛️ ผังห้องสโมสรนิสิต</h2>
-                        <p class="text-[11px] text-slate-400 mt-0.5">พื้นที่ฝั่งซ้าย, โซนวางของยาว, ตู้ 3x3 ขวาบน และโต๊ะกลางห้อง</p>
+        <!-- ================= ROOM 2: ห้องสโม ================= -->
+        <div id="room-samo-view" class="space-y-4 hidden">
+            <!-- Room Header Card -->
+            <div class="bg-cardBg p-4 rounded-2xl border border-borderCol flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div>
+                    <h2 class="text-base font-bold text-amber-400 flex items-center">
+                        🏛️ ผังห้องสโมสรนิสิต
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">พื้นที่วางของยาว, ตู้ 3x3 ขวาบน, 2 ช่องติดกำแพงซ้าย และโต๊ะกลางห้อง</p>
+                </div>
+                <div class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-xl self-end sm:self-auto">
+                    🚪 ประตู (ล่างซ้าย / ล่างกลาง)
+                </div>
+            </div>
+
+            <!-- Outer Room Box (Full Width 100%) -->
+            <div class="bg-cardBg p-4 sm:p-6 rounded-3xl border-2 border-amber-500/30 shadow-xl space-y-5 relative">
+                <div class="absolute top-3 right-4 text-[11px] font-bold text-slate-500 tracking-wider uppercase">Floor Plan: สโมสรนิสิต</div>
+
+                <!-- 1. ตู้ชั้นวาง 3x3 ขวาบน & พื้นที่วางของยาว -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="md:col-span-2 bg-slate-900/50 p-3.5 rounded-2xl border border-slate-800">
+                        <div class="text-xs font-semibold text-slate-300 mb-2 flex items-center justify-between">
+                            <span>📦 พื้นที่วางของยาว (เลือกได้หลายช่อง)</span>
+                            <span class="text-[10px] text-slate-400">ยาวต่อเนื่องถึงตู้ 3x3</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2" id="samo-long-zones">
+                            <!-- Rendered by JS -->
+                        </div>
                     </div>
-                    <span class="bg-blue-500/10 text-blue-300 border border-blue-500/30 text-[10px] px-2 py-0.5 rounded-md">🚪 ประตู (ล่างซ้าย)</span>
+
+                    <!-- ตู้ 3x3 ขวาบน -->
+                    <div onclick="openSamoCabinet()" class="bg-indigo-950/20 hover:bg-indigo-900/30 border border-indigo-500/40 p-4 rounded-2xl cursor-pointer transition flex flex-col justify-between text-center shadow-sm">
+                        <div class="text-indigo-400 font-bold text-xs flex items-center justify-center space-x-1">
+                            <span>🗄️</span> <span>ตู้ชั้นวาง 3x3 (ขวาบน)</span>
+                        </div>
+                        <div class="my-2">
+                            <span id="samo-cabinet-status-badge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 inline-block">ว่างทุกล็อก</span>
+                        </div>
+                        <div class="text-[11px] text-indigo-300 underline font-medium">คลิกเพื่อเลือกชั้นวาง 3x3 ➔</div>
+                    </div>
                 </div>
 
-                <!-- Top Storage Section: Floor Space + 3x3 Cabinet -->
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                    <div class="sm:col-span-7 bg-indigo-950/20 border border-indigo-500/30 p-3 rounded-xl space-y-2">
-                        <span class="text-[11px] font-bold text-indigo-300 block">พื้นที่วางของยาว (เลือกได้หลายช่อง)</span>
-                        <div class="grid grid-cols-3 gap-2">
-                            <div id="slot-R2-Floor1" onclick="toggleSlotSelection('ห้องสโม', 'R2-Floor1')" class="slot-card bg-slate-800/80 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-lg text-center cursor-pointer">
-                                <span class="font-bold text-xs text-indigo-300 block">โซน 1</span>
-                                <span class="status-badge text-[9px] text-emerald-400">ว่าง</span>
-                            </div>
-                            <div id="slot-R2-Floor2" onclick="toggleSlotSelection('ห้องสโม', 'R2-Floor2')" class="slot-card bg-slate-800/80 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-lg text-center cursor-pointer">
-                                <span class="font-bold text-xs text-indigo-300 block">โซน 2</span>
-                                <span class="status-badge text-[9px] text-emerald-400">ว่าง</span>
-                            </div>
-                            <div id="slot-R2-Floor3" onclick="toggleSlotSelection('ห้องสโม', 'R2-Floor3')" class="slot-card bg-slate-800/80 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-lg text-center cursor-pointer">
-                                <span class="font-bold text-xs text-indigo-300 block">โซน 3</span>
-                                <span class="status-badge text-[9px] text-emerald-400">ว่าง</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-5">
-                        <div onclick="openRackPopup('ตู้ชั้นวางขวาบน')" class="slot-card bg-blue-950/30 border border-blue-500/40 hover:border-indigo-500 p-3 rounded-xl text-center cursor-pointer h-full flex flex-col justify-center items-center shadow-sm">
-                            <span class="font-bold text-xs text-blue-300">🗄️ ตู้ชั้นวาง 3x3 (ขวาบน)</span>
-                            <span class="text-[10px] text-emerald-400 mt-1">คลิกเลือกชั้นวาง</span>
-                        </div>
+                <!-- 2. ช่องติดกำแพงซ้าย (ลดเหลือ 2 ช่อง) -->
+                <div class="bg-slate-900/50 p-3.5 rounded-2xl border border-slate-800">
+                    <div class="text-xs font-semibold text-slate-300 mb-2">🧱 2 ช่องติดกำแพงซ้าย</div>
+                    <div class="grid grid-cols-2 gap-2.5" id="samo-left-slots">
+                        <!-- Rendered by JS -->
                     </div>
                 </div>
 
-                <!-- Left Wall 2 Slots & Central Table -->
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-                    <div class="sm:col-span-4 space-y-2">
-                        <span class="text-[11px] font-semibold text-slate-300">2 ช่องติดกำแพงซ้าย</span>
-                        <div class="grid grid-cols-2 sm:grid-cols-1 gap-2">
-                            <div id="slot-R2-Wall1" onclick="toggleSlotSelection('ห้องสโม', 'R2-Wall1')" class="slot-card bg-slate-800/60 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl text-xs flex justify-between items-center cursor-pointer">
-                                <span class="font-bold text-indigo-300">ช่องซ้าย 1</span>
-                                <span class="status-badge text-[9px] text-emerald-400">ว่าง</span>
-                            </div>
-                            <div id="slot-R2-Wall2" onclick="toggleSlotSelection('ห้องสโม', 'R2-Wall2')" class="slot-card bg-slate-800/60 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl text-xs flex justify-between items-center cursor-pointer">
-                                <span class="font-bold text-indigo-300">ช่องซ้าย 2</span>
-                                <span class="status-badge text-[9px] text-emerald-400">ว่าง</span>
-                            </div>
-                        </div>
+                <!-- 3. โต๊ะกลางห้อง (มีทางเดินล้อมรอบ) -->
+                <div class="border-2 border-dashed border-amber-500/30 bg-amber-500/5 rounded-2xl p-4 text-center relative">
+                    <div class="text-[11px] text-amber-400/80 mb-1 flex items-center justify-center space-x-1">
+                        <span>🔄</span> <span>มีทางเดินล้อมรอบโต๊ะกลาง</span>
                     </div>
-
-                    <div class="sm:col-span-8 bg-amber-950/20 border border-amber-500/30 rounded-2xl p-4 text-center text-amber-300 text-xs font-medium flex flex-col justify-center items-center h-28 relative shadow-inner">
-                        <span class="absolute top-2 left-3 text-[10px] text-slate-400">⟳ มีทางเดินล้อมรอบโต๊ะกลาง</span>
-                        <span class="text-lg mb-0.5">🪑</span>
-                        <span>โต๊ะกลางห้องสโม</span>
+                    <div class="bg-cardBg border border-amber-500/40 py-3 px-4 rounded-xl max-w-xs mx-auto shadow-md">
+                        <span class="text-base">🪑</span>
+                        <div class="font-bold text-xs text-amber-300 mt-1">โต๊ะกลางห้องสโมสรนิสิต</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">เว้นช่องว่างทางเดินรอบโต๊ะ</div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- SELECTION & BOOKING CARD -->
-        <section class="bg-cardBg border border-slate-800 p-4 rounded-2xl shadow-xl space-y-4">
-            
-            <!-- Step 1: Slot Summary & Action -->
-            <div id="step-select-prompt" class="space-y-3">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-2">
-                        <span class="bg-indigo-600 w-2.5 h-2.5 rounded-full inline-block shadow"></span>
-                        <h3 class="font-bold text-xs sm:text-sm text-slate-200">ช่องที่เลือกจอง</h3>
+        <!-- ================= BOOKING ACTION BAR / FLOATING PANEL ================= -->
+        <div id="selection-panel" class="bg-cardBg p-4 rounded-2xl border border-indigo-500/40 shadow-2xl space-y-3 hidden transition-all">
+            <div class="flex justify-between items-center border-b border-borderCol pb-2">
+                <div class="flex items-center space-x-2">
+                    <span class="bg-indigo-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" id="selected-count">0</span>
+                    <span class="text-xs font-bold text-slate-200">ช่องที่เลือกจอง: <span id="selected-list-text" class="text-indigo-400">-</span></span>
+                </div>
+                <button onclick="clearSelection()" class="text-xs text-rose-400 hover:text-rose-300 underline">ล้างที่เลือก</button>
+            </div>
+
+            <!-- Booking Form -->
+            <form id="booking-form" onsubmit="submitBooking(event)" class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-300 mb-1">ชื่อ - นามสกุล (ผู้ยืม) *</label>
+                        <input type="text" id="fullname" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="เช่น สรกฤช เจริญสุข">
                     </div>
-                    <span id="selected-count-badge" class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">0 ช่อง</span>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-300 mb-1">ชื่อเล่น *</label>
+                        <input type="text" id="nickname" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="เช่น กฤช">
+                    </div>
                 </div>
 
-                <div id="selected-slots-list" class="flex flex-wrap gap-1.5 min-h-[40px] max-h-24 overflow-y-auto bg-slate-900 border border-slate-800 p-2.5 rounded-xl">
-                    <span class="text-xs text-slate-500 italic">ยังไม่ได้เลือกช่อง (คลิกที่ช่องในผังด้านบน)</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-300 mb-1">ชั้นปี *</label>
+                        <select id="year-level" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="">เลือกชั้นปี</option>
+                            <option value="ปี 1">ปี 1</option>
+                            <option value="ปี 2">ปี 2</option>
+                            <option value="ปี 3">ปี 3</option>
+                            <option value="ปี 4">ปี 4</option>
+                            <option value="ปี 5+">ปี 5 / พี่บัณฑิต</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-300 mb-1">สังกัดฝ่าย *</label>
+                        <input type="text" id="department" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="เช่น ฝ่ายพัสดุและสถานที่">
+                    </div>
                 </div>
 
-                <button type="button" id="proceed-btn" onclick="proceedToForm()" disabled class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 text-white font-medium py-3 rounded-xl text-xs sm:text-sm transition shadow-lg shadow-indigo-500/20">
-                    ดำเนินการกรอกรายละเอียดการจอง ➔
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-2">
+                        <label class="block text-[11px] font-medium text-slate-300 mb-1">ชื่ออุปกรณ์ / สิ่งของ *</label>
+                        <input type="text" id="item-name" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="เช่น ลำโพง PA, เต็นท์">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-300 mb-1">จำนวน *</label>
+                        <input type="number" id="item-qty" min="1" value="1" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-medium text-slate-300 mb-1">เหตุผลที่ฝาก *</label>
+                    <input type="text" id="reason" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="เช่น เตรียมจัดค่ายพัสดุ">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-300 mb-1">📅 วันที่เริ่มวาง *</label>
+                        <input type="date" id="date-start" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-300 mb-1">📅 วันที่นำออก *</label>
+                        <input type="date" id="date-end" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-medium text-slate-300 mb-1">ลิงก์รูปถ่ายสภาพของ / หมายเหตุ</label>
+                    <input type="text" id="note" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="แนบลิงก์รูปภาพ หรือข้อควรระวัง">
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-indigo-600/30">
+                    ยืนยันการจองช่องที่เลือก
                 </button>
+            </form>
+        </div>
+
+        <!-- ================= MANAGEMENT LIST & CLEAR PANEL ================= -->
+        <div class="bg-cardBg p-4 rounded-2xl border border-borderCol space-y-3">
+            <h3 class="text-xs font-bold text-slate-300 flex items-center justify-between">
+                <span>📋 รายการช่องที่ถูกจองแล้ว (จัดการ / นำของออก)</span>
+                <span class="text-[10px] text-slate-500">คลิกที่ช่องเพื่อดูรายละเอียด</span>
+            </h3>
+            <div id="booked-list-container" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                <p class="text-xs text-slate-500 text-center py-3">ยังไม่มีรายการจองในระบบ</p>
             </div>
-
-            <!-- Step 2: Booking Form -->
-            <div id="step-booking-form" class="space-y-3.5 hidden">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <div>
-                        <h3 class="font-bold text-xs sm:text-sm text-indigo-400">📝 กรอกรายละเอียดการจอง</h3>
-                        <p id="selected-slots-summary" class="text-[10px] text-slate-400 truncate max-w-[240px]">ช่อง: -</p>
-                    </div>
-                    <button type="button" onclick="backToSelection()" class="text-xs text-indigo-400 hover:text-indigo-300 underline font-medium">← กลับไปเลือกช่อง</button>
-                </div>
-
-                <form id="booking-form" onsubmit="handleMultiBooking(event)" class="space-y-3 text-xs">
-                    <div>
-                        <label class="block font-medium text-slate-300 mb-1">ชื่อผู้ยืม (นลก. ชื่อจริง นามสกุล) *</label>
-                        <input type="text" id="fullname" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="นลก. สมชาย ใจดี">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <div>
-                            <label class="block font-medium text-slate-300 mb-1">ชื่อเล่น *</label>
-                            <input type="text" id="nickname" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="ชาย">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-300 mb-1">ชั้นปี *</label>
-                            <select id="year-level" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                                <option value="">เลือกชั้นปี</option>
-                                <option value="ปี 1">ปี 1</option>
-                                <option value="ปี 2">ปี 2</option>
-                                <option value="ปี 3">ปี 3</option>
-                                <option value="ปี 4">ปี 4</option>
-                                <option value="ปี 5">ปี 5 / พี่บัณฑิต</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block font-medium text-slate-300 mb-1">สังกัดฝ่าย *</label>
-                        <input type="text" id="department" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="ฝ่ายพัสดุและสถานที่">
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2.5">
-                        <div class="col-span-2">
-                            <label class="block font-medium text-slate-300 mb-1">ชื่ออุปกรณ์ / สิ่งของ *</label>
-                            <input type="text" id="item-name" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="ลำโพง PA">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-300 mb-1">จำนวน *</label>
-                            <input type="number" id="item-qty" min="1" value="1" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block font-medium text-slate-300 mb-1">เหตุผลที่ฝากของ *</label>
-                        <input type="text" id="reason" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="เตรียมจัดค่ายนิสิต">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <div>
-                            <label class="block font-medium text-slate-300 mb-1">วันที่เริ่มวาง *</label>
-                            <input type="date" id="date-start" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-300 mb-1">วันที่นำออก *</label>
-                            <input type="date" id="date-end" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block font-medium text-slate-300 mb-1">ลิงก์รูปถ่ายสภาพของ / หมายเหตุ</label>
-                        <input type="text" id="note" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="แนบลิงก์รูปถ่าย">
-                    </div>
-
-                    <div class="pt-2 flex space-x-2">
-                        <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-xs sm:text-sm transition shadow-lg shadow-indigo-500/20">
-                            ยืนยันการจองช่อง
-                        </button>
-                        <button type="button" onclick="clearSelectedSlotsData()" id="clear-multi-btn" class="px-4 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 font-semibold py-3 rounded-xl text-xs transition hidden">
-                            นำของออก
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-        </section>
+        </div>
 
     </main>
 
-    <!-- Rack Popup Modal (3x3 or 3 Tiers) -->
-    <div id="rack-popup" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-cardBg border border-slate-700 p-5 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
-            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
-                <h3 id="rack-popup-title" class="font-bold text-sm text-indigo-400">เลือกชั้นวาง</h3>
-                <button onclick="closeRackPopup()" class="text-slate-400 hover:text-slate-200 text-xs font-bold">✕ ปิด</button>
+    <!-- MODAL: ตู้เขียว / ตู้ 3x3 (เลือกชั้น 1-3) -->
+    <div id="sub-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-cardBg border border-indigo-500/40 rounded-3xl max-w-md w-full p-5 space-y-4 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center border-b border-borderCol pb-3">
+                <h3 id="modal-title" class="font-bold text-sm text-indigo-400">เลือกชั้นของตู้</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white text-base px-2">✕</button>
             </div>
-            <p class="text-xs text-slate-400">คลิกเลือกช่องชั้นวาง (เลือกหลายช่องได้):</p>
-            <div class="grid grid-cols-3 gap-2" id="rack-popup-grid"></div>
-            <button onclick="closeRackPopup()" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-medium shadow">เสร็จสิ้น</button>
+            <p class="text-xs text-slate-400" id="modal-desc">คลิกเลือกชั้นที่ต้องการจอง (1, 2 หรือ 3)</p>
+            
+            <div class="space-y-2.5" id="modal-tiers-container">
+                <!-- Rendered by JS -->
+            </div>
+
+            <div class="pt-2 flex space-x-2">
+                <button onclick="confirmModalSelection()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 rounded-xl text-xs transition shadow">
+                    เลือกชั้นเหล่านี้ (จองพร้อมกัน)
+                </button>
+                <button onclick="closeModal()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2 rounded-xl text-xs transition">
+                    ปิด
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Notification Modal -->
-    <div id="custom-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-cardBg border border-slate-700 p-5 rounded-2xl max-w-xs w-full shadow-2xl text-center space-y-3">
-            <div id="modal-icon" class="text-2xl">🎉</div>
-            <h3 id="modal-title" class="font-bold text-sm text-slate-100">แจ้งเตือน</h3>
-            <p id="modal-message" class="text-xs text-slate-300 leading-relaxed">ข้อความ</p>
-            <button onclick="closeModal()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-xl text-xs transition shadow">ตกลง</button>
-        </div>
-    </div>
+    <!-- Footer -->
+    <footer class="text-center py-4 text-[11px] text-slate-500 border-t border-borderCol mt-auto">
+        SMORXCU Storage Management System • Mobile-First Responsive
+    </footer>
 
-    <!-- JavaScript Core Logic -->
+    <!-- JavaScript Application Logic -->
     <script>
-        let storageData = JSON.parse(localStorage.getItem('smorxcu_storage_v7')) || {};
-        let selectedSlots = [];
+        // Storage DB in LocalStorage
+        let storageData = JSON.parse(localStorage.getItem('smorxcu_storage_v2')) || {};
+        let currentRoom = 'center'; // 'center' or 'samo'
+        let selectedSlots = new Set(); // Stores unique slot keys e.g., "center-green-1-1", "center-top-4"
 
-        function showNotification(title, message, icon = '🎉') {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-message').innerText = message;
-            document.getElementById('modal-icon').innerText = icon;
-            document.getElementById('custom-modal').classList.remove('hidden');
+        // Modal state
+        let modalContext = null; // { type: 'green', id: 1, name: 'ตู้เขียว #1' } or { type: 'samo-cabinet' }
+        let modalTempSelected = new Set();
+
+        function switchRoom(room) {
+            currentRoom = room;
+            selectedSlots.clear();
+            updateSelectionUI();
+
+            if (room === 'center') {
+                document.getElementById('room-center-view').classList.remove('hidden');
+                document.getElementById('room-samo-view').classList.add('hidden');
+                document.getElementById('tab-center').className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow';
+                document.getElementById('tab-samo').className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white';
+            } else {
+                document.getElementById('room-center-view').classList.add('hidden');
+                document.getElementById('room-samo-view').classList.remove('hidden');
+                document.getElementById('tab-samo').className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow';
+                document.getElementById('tab-center').className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white';
+            }
+            renderAll();
+        }
+
+        // Render Room Components
+        function renderAll() {
+            renderCenterRoom();
+            renderSamoRoom();
+            renderBookedList();
+        }
+
+        // 1. Center Room Render
+        function renderCenterRoom() {
+            // Green Cabinets (4 cabinets, each has 3 tiers: 1, 2, 3)
+            let greenHTML = '';
+            for (let i = 1; i <= 4; i++) {
+                let status = getCabinetStatus('center-green-' + i, 3);
+                greenHTML += `
+                    <div onclick="openGreenCabinet(${i})" class="p-3 rounded-xl border cursor-pointer transition flex flex-col justify-between h-24 ${getCabinetCardStyle(status)}">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-xs">ตู้เขียว #${i}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full ${getStatusBadgeStyle(status)}">${getStatusText(status)}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-300 font-medium truncate">คลิกเลือก 3 ชั้น</div>
+                    </div>
+                `;
+            }
+            document.getElementById('green-cabinets-container').innerHTML = greenHTML;
+
+            // Center Top Row (#4, #5, #6)
+            let topRowHTML = '';
+            [4, 5, 6].forEach(id => {
+                let key = `center-slot-${id}`;
+                let booked = storageData[key];
+                let isSelected = selectedSlots.has(key);
+                topRowHTML += `
+                    <div onclick="toggleSlot('${key}')" class="p-3 rounded-xl border cursor-pointer transition flex flex-col justify-between h-24 ${getSlotCardStyle(booked, isSelected)}">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-xs">ช่อง #${id}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full ${booked ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">${booked ? 'ไม่ว่าง' : 'ว่าง'}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-300 truncate">${booked ? booked.itemName + ' (' + booked.nickname + ')' : '-'}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('center-top-row').innerHTML = topRowHTML;
+
+            // Center Bottom Row (#1, #2, #3)
+            let bottomRowHTML = '';
+            [1, 2, 3].forEach(id => {
+                let key = `center-slot-${id}`;
+                let booked = storageData[key];
+                let isSelected = selectedSlots.has(key);
+                bottomRowHTML += `
+                    <div onclick="toggleSlot('${key}')" class="p-3 rounded-xl border cursor-pointer transition flex flex-col justify-between h-24 ${getSlotCardStyle(booked, isSelected)}">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-xs">ช่อง #${id}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full ${booked ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">${booked ? 'ไม่ว่าง' : 'ว่าง'}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-300 truncate">${booked ? booked.itemName + ' (' + booked.nickname + ')' : '-'}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('center-bottom-row').innerHTML = bottomRowHTML;
+        }
+
+        // 2. Samo Room Render
+        function renderSamoRoom() {
+            // Samo Long Zones (3 zones)
+            let longHTML = '';
+            for (let i = 1; i <= 3; i++) {
+                let key = `samo-long-${i}`;
+                let booked = storageData[key];
+                let isSelected = selectedSlots.has(key);
+                longHTML += `
+                    <div onclick="toggleSlot('${key}')" class="p-3 rounded-xl border cursor-pointer transition flex flex-col justify-between h-24 ${getSlotCardStyle(booked, isSelected)}">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-xs">โซน ${i}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full ${booked ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">${booked ? 'ไม่ว่าง' : 'ว่าง'}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-300 truncate">${booked ? booked.itemName + ' (' + booked.nickname + ')' : '-'}</div>
+                    </div>
+                `;
+            }
+            document.getElementById('samo-long-zones').innerHTML = longHTML;
+
+            // Samo Left Wall Slots (2 slots)
+            let leftHTML = '';
+            for (let i = 1; i <= 2; i++) {
+                let key = `samo-left-${i}`;
+                let booked = storageData[key];
+                let isSelected = selectedSlots.has(key);
+                leftHTML += `
+                    <div onclick="toggleSlot('${key}')" class="p-3 rounded-xl border cursor-pointer transition flex flex-col justify-between h-24 ${getSlotCardStyle(booked, isSelected)}">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-xs">ช่องซ้าย ${i}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full ${booked ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">${booked ? 'ไม่ว่าง' : 'ว่าง'}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-300 truncate">${booked ? booked.itemName + ' (' + booked.nickname + ')' : '-'}</div>
+                    </div>
+                `;
+            }
+            document.getElementById('samo-left-slots').innerHTML = leftHTML;
+
+            // Update Samo Cabinet Badge Status
+            let cabStatus = getCabinetStatus('samo-cabinet-3x3', 9);
+            let badge = document.getElementById('samo-cabinet-status-badge');
+            badge.className = `px-2.5 py-1 rounded-full text-[11px] font-semibold ${getStatusBadgeStyle(cabStatus)}`;
+            badge.innerText = getStatusText(cabStatus);
+        }
+
+        // Helper Status Checkers for Cabinets (Multi-tier)
+        function getCabinetStatus(prefix, totalTiers) {
+            let bookedCount = 0;
+            for (let t = 1; t <= totalTiers; t++) {
+                if (storageData[`${prefix}-tier-${t}`]) bookedCount++;
+            }
+            if (bookedCount === 0) return 'empty';
+            if (bookedCount === totalTiers) return 'full';
+            return 'partial';
+        }
+
+        function getCabinetCardStyle(status) {
+            if (status === 'full') return 'bg-rose-950/30 border-rose-500/50 hover:border-rose-400';
+            if (status === 'partial') return 'bg-amber-950/30 border-amber-500/50 hover:border-amber-400';
+            return 'bg-emerald-950/20 border-emerald-500/40 hover:border-emerald-400';
+        }
+
+        function getSlotCardStyle(booked, isSelected) {
+            if (isSelected) return 'bg-indigo-900/40 border-indigo-500 ring-2 ring-indigo-500';
+            if (booked) return 'bg-rose-950/30 border-rose-500/50';
+            return 'bg-slate-800/40 border-slate-700/80 hover:border-indigo-500/60';
+        }
+
+        function getStatusBadgeStyle(status) {
+            if (status === 'full') return 'bg-rose-500/20 text-rose-400';
+            if (status === 'partial') return 'bg-amber-500/20 text-amber-400';
+            return 'bg-emerald-500/20 text-emerald-400';
+        }
+
+        function getStatusText(status) {
+            if (status === 'full') return 'เต็ม';
+            if (status === 'partial') return 'ว่างบางส่วน';
+            return 'ว่าง';
+        }
+
+        // Toggle Normal Slot Selection
+        function toggleSlot(key) {
+            if (storageData[key]) {
+                alert(`ช่องนี้ถูกจองไปแล้วโดย ${storageData[key].fullname} (${storageData[key].itemName}) หากต้องการเคลียร์ให้นำออกที่รายการด้านล่าง`);
+                return;
+            }
+            if (selectedSlots.has(key)) {
+                selectedSlots.delete(key);
+            } else {
+                selectedSlots.add(key);
+            }
+            updateSelectionUI();
+            renderAll();
+        }
+
+        // Modal Handlers for Cabinets
+        function openGreenCabinet(cabId) {
+            modalContext = { type: 'green', prefix: `center-green-${cabId}`, name: `ตู้เขียว #${cabId}`, total: 3 };
+            openModalWithTiers();
+        }
+
+        function openSamoCabinet() {
+            modalContext = { type: 'samo-cabinet', prefix: `samo-cabinet-3x3`, name: `ตู้ชั้นวาง 3x3 (ขวาบน)`, total: 9 };
+            openModalWithTiers();
+        }
+
+        function openModalWithTiers() {
+            modalTempSelected.clear();
+            document.getElementById('modal-title').innerText = `เลือกชั้น: ${modalContext.name}`;
+            document.getElementById('modal-desc').innerText = `เลือกชั้น/ช่องที่ต้องการจอง (ติ๊กเลือกได้หลายชั้น)`;
+
+            let html = '';
+            for (let t = 1; t <= modalContext.total; t++) {
+                let key = `${modalContext.prefix}-tier-${t}`;
+                let booked = storageData[key];
+                let isModalSelected = modalTempSelected.has(key);
+
+                html += `
+                    <div onclick="${booked ? `alert('ชั้นนี้ไม่ว่างแล้ว')` : `toggleModalTier('${key}')`}" class="p-3 rounded-xl border flex justify-between items-center cursor-pointer transition ${booked ? 'bg-rose-950/30 border-rose-500/50 opacity-60' : (isModalSelected ? 'bg-indigo-950 border-indigo-500 ring-1 ring-indigo-500' : 'bg-slate-900 border-slate-700 hover:border-indigo-500')}">
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" ${booked ? 'disabled' : ''} ${isModalSelected ? 'checked' : ''} class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-800 border-slate-700">
+                            <span class="text-xs font-semibold text-slate-200">ชั้น/ช่องย่อยที่ ${t}</span>
+                        </div>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full ${booked ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">${booked ? 'ไม่ว่าง' : 'ว่าง'}</span>
+                    </div>
+                `;
+            }
+            document.getElementById('modal-tiers-container').innerHTML = html;
+            document.getElementById('sub-modal').classList.remove('hidden');
+        }
+
+        function toggleModalTier(key) {
+            if (modalTempSelected.has(key)) {
+                modalTempSelected.delete(key);
+            } else {
+                modalTempSelected.add(key);
+            }
+            openModalWithTiers(); // re-render modal list
         }
 
         function closeModal() {
-            document.getElementById('custom-modal').classList.add('hidden');
+            document.getElementById('sub-modal').classList.add('hidden');
         }
 
-        function switchTab(room) {
-            if (room === 'room1') {
-                document.getElementById('view-room1').classList.remove('hidden');
-                document.getElementById('view-room2').classList.add('hidden');
-                document.getElementById('btn-room1').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow';
-                document.getElementById('btn-room2').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-slate-200';
+        function confirmModalSelection() {
+            if (modalTempSelected.size === 0) {
+                alert('กรุณาเลือกอย่างน้อย 1 ชั้น/ช่อง');
+                return;
+            }
+            modalTempSelected.forEach(key => selectedSlots.add(key));
+            closeModal();
+            updateSelectionUI();
+            renderAll();
+        }
+
+        // Selection & Booking Management
+        function updateSelectionUI() {
+            const panel = document.getElementById('selection-panel');
+            const countEl = document.getElementById('selected-count');
+            const listTextEl = document.getElementById('selected-list-text');
+
+            if (selectedSlots.size > 0) {
+                panel.classList.remove('hidden');
+                countEl.innerText = selectedSlots.size;
+                listTextEl.innerText = Array.from(selectedSlots).join(', ');
             } else {
-                document.getElementById('view-room1').classList.add('hidden');
-                document.getElementById('view-room2').classList.remove('hidden');
-                document.getElementById('btn-room2').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow';
-                document.getElementById('btn-room1').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-slate-200';
+                panel.classList.add('hidden');
             }
         }
 
-        function openRackPopup(rackName) {
-            document.getElementById('rack-popup-title').innerText = `ตู้ 3x3 (${rackName})`;
-            let html = '';
-            for (let i = 1; i <= 9; i++) {
-                let slotId = `${rackName}-Cell${i}`;
-                let isSel = selectedSlots.some(s => s.id === slotId);
-                let isOcc = storageData[slotId];
-                html += `
-                    <div id="slot-${slotId}" onclick="toggleSlotSelection('ห้องสโม (${rackName})', '${slotId}')" class="slot-card p-2.5 rounded-xl border ${isSel ? 'border-indigo-500 ring-2 ring-indigo-500 bg-indigo-950/50' : 'border-slate-700 bg-slate-800/80'} hover:border-indigo-500 cursor-pointer text-center flex flex-col justify-between h-18 transition">
-                        <span class="font-bold text-xs text-indigo-300">ช่อง ${i}</span>
-                        <span class="status-badge text-[9px] ${isOcc ? 'text-rose-400' : 'text-emerald-400'} font-medium">${isOcc ? 'เต็ม' : 'ว่าง'}</span>
-                    </div>
-                `;
-            }
-            document.getElementById('rack-popup-grid').innerHTML = html;
-            document.getElementById('rack-popup').classList.remove('hidden');
+        function clearSelection() {
+            selectedSlots.clear();
+            updateSelectionUI();
+            renderAll();
         }
 
-        function openRoom1TopRack(rackName, baseId) {
-            document.getElementById('rack-popup-title').innerText = `${rackName} (3 ชั้น)`;
-            let html = '';
-            for (let i = 1; i <= 3; i++) {
-                let slotId = `${baseId}-Tier${i}`;
-                let isSel = selectedSlots.some(s => s.id === slotId);
-                let isOcc = storageData[slotId];
-                html += `
-                    <div id="slot-${slotId}" onclick="toggleSlotSelection('ห้องศูนย์กิจ (${rackName})', '${slotId}')" class="slot-card p-3 rounded-xl border ${isSel ? 'border-indigo-500 ring-2 ring-indigo-500 bg-indigo-950/50' : 'border-slate-700 bg-slate-800/80'} hover:border-indigo-500 cursor-pointer text-center flex flex-col justify-between h-20 transition col-span-3">
-                        <span class="font-bold text-xs text-emerald-300">ชั้นที่ ${i}</span>
-                        <span class="status-badge text-[10px] ${isOcc ? 'text-rose-400' : 'text-emerald-400'} font-medium">${isOcc ? 'เต็ม' : 'ว่าง'}</span>
-                    </div>
-                `;
-            }
-            document.getElementById('rack-popup-grid').innerHTML = html;
-            document.getElementById('rack-popup').classList.remove('hidden');
-        }
-
-        function closeRackPopup() {
-            document.getElementById('rack-popup').classList.add('hidden');
-            updateUI();
-        }
-
-        function toggleSlotSelection(roomName, slotId) {
-            let index = selectedSlots.findIndex(s => s.id === slotId);
-            if (index > -1) {
-                selectedSlots.splice(index, 1);
-            } else {
-                selectedSlots.push({ room: roomName, id: slotId });
-            }
-            updateUISelectionState();
-        }
-
-        function updateUISelectionState() {
-            document.querySelectorAll('.slot-card').forEach(el => el.classList.remove('ring-2', 'ring-indigo-500', 'border-indigo-500'));
-            selectedSlots.forEach(s => {
-                let card = document.getElementById(`slot-${s.id}`);
-                if (card) card.classList.add('ring-2', 'ring-indigo-500', 'border-indigo-500');
-            });
-
-            document.getElementById('selected-count-badge').innerText = `${selectedSlots.length} ช่อง`;
-            let listContainer = document.getElementById('selected-slots-list');
-            let proceedBtn = document.getElementById('proceed-btn');
-
-            if (selectedSlots.length > 0) {
-                proceedBtn.removeAttribute('disabled');
-                let html = '';
-                selectedSlots.forEach(s => {
-                    html += `<span class="bg-indigo-900/80 border border-indigo-500/40 text-indigo-200 text-[11px] px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-sm">
-                        📍 ${s.id}
-                        <button type="button" onclick="event.stopPropagation(); removeSingleSelection('${s.id}')" class="text-indigo-400 hover:text-white font-bold ml-1">×</button>
-                    </span>`;
-                });
-                listContainer.innerHTML = html;
-            } else {
-                proceedBtn.setAttribute('disabled', 'true');
-                listContainer.innerHTML = `<span class="text-xs text-slate-500 italic">ยังไม่ได้เลือกช่อง (คลิกที่ช่องในผังด้านบน)</span>`;
-            }
-        }
-
-        function removeSingleSelection(slotId) {
-            selectedSlots = selectedSlots.filter(s => s.id !== slotId);
-            updateUISelectionState();
-        }
-
-        function proceedToForm() {
-            if (selectedSlots.length === 0) return;
-            document.getElementById('step-select-prompt').classList.add('hidden');
-            document.getElementById('step-booking-form').classList.remove('hidden');
-
-            document.getElementById('selected-slots-summary').innerText = `ช่องที่เลือก (${selectedSlots.length}): ` + selectedSlots.map(s => s.id).join(', ');
-
-            let hasExisting = selectedSlots.some(s => storageData[s.id]);
-            if (hasExisting && selectedSlots.length === 1) {
-                let data = storageData[selectedSlots[0].id];
-                document.getElementById('fullname').value = data.fullname;
-                document.getElementById('nickname').value = data.nickname;
-                document.getElementById('year-level').value = data.yearLevel;
-                document.getElementById('department').value = data.department;
-                document.getElementById('item-name').value = data.itemName;
-                document.getElementById('item-qty').value = data.itemQty;
-                document.getElementById('reason').value = data.reason;
-                document.getElementById('date-start').value = data.dateStart || '';
-                document.getElementById('date-end').value = data.dateEnd || '';
-                document.getElementById('note').value = data.note;
-                document.getElementById('clear-multi-btn').classList.remove('hidden');
-            } else {
-                document.getElementById('booking-form').reset();
-                document.getElementById('clear-multi-btn').classList.add('hidden');
-            }
-        }
-
-        function backToSelection() {
-            document.getElementById('step-select-prompt').classList.remove('hidden');
-            document.getElementById('step-booking-form').classList.add('hidden');
-        }
-
-        function handleMultiBooking(e) {
+        function submitBooking(e) {
             e.preventDefault();
-            if (selectedSlots.length === 0) return;
+            if (selectedSlots.size === 0) return alert('กรุณาเลือกช่องอย่างน้อย 1 ช่อง');
 
-            const fullname = document.getElementById('fullname').value;
-            const nickname = document.getElementById('nickname').value;
-            const yearLevel = document.getElementById('year-level').value;
-            const department = document.getElementById('department').value;
-            const itemName = document.getElementById('item-name').value;
-            const itemQty = document.getElementById('item-qty').value;
-            const reason = document.getElementById('reason').value;
-            const dateStart = document.getElementById('date-start').value;
-            const dateEnd = document.getElementById('date-end').value;
-            const note = document.getElementById('note').value;
-            const timestamp = new Date().toLocaleString();
+            const bookingInfo = {
+                fullname: document.getElementById('fullname').value,
+                nickname: document.getElementById('nickname').value,
+                yearLevel: document.getElementById('year-level').value,
+                department: document.getElementById('department').value,
+                itemName: document.getElementById('item-name').value,
+                itemQty: document.getElementById('item-qty').value,
+                reason: document.getElementById('reason').value,
+                dateStart: document.getElementById('date-start').value,
+                dateEnd: document.getElementById('date-end').value,
+                note: document.getElementById('note').value,
+                timestamp: new Date().toLocaleString()
+            };
 
-            selectedSlots.forEach(s => {
-                storageData[s.id] = { room: s.room, slot: s.id, fullname, nickname, yearLevel, department, itemName, itemQty, reason, dateStart, dateEnd, note, timestamp };
+            selectedSlots.forEach(key => {
+                storageData[key] = bookingInfo;
             });
 
-            localStorage.setItem('smorxcu_storage_v7', JSON.stringify(storageData));
-            updateUI();
-            selectedSlots = [];
-            updateUISelectionState();
-            backToSelection();
-            showNotification('สำเร็จ', 'บันทึกการจองเรียบร้อยแล้ว', '✅');
+            localStorage.setItem('smorxcu_storage_v2', JSON.stringify(storageData));
+            alert(`จองสำเร็จจำนวน ${selectedSlots.size} ช่องเรียบร้อยแล้ว!`);
+            
+            selectedSlots.clear();
+            document.getElementById('booking-form').reset();
+            updateSelectionUI();
+            renderAll();
         }
 
-        function clearSelectedSlotsData() {
-            if (selectedSlots.length === 0) return;
-            if (confirm('คุณต้องการนำของออกจากช่องที่เลือกใช่หรือไม่?')) {
-                selectedSlots.forEach(s => { delete storageData[s.id]; });
-                localStorage.setItem('smorxcu_storage_v7', JSON.stringify(storageData));
-                updateUI();
-                selectedSlots = [];
-                updateUISelectionState();
-                backToSelection();
-                showNotification('สำเร็จ', 'เคลียร์ช่องที่เลือกให้ว่างเรียบร้อยแล้ว', '🧹');
+        function renderBookedList() {
+            const container = document.getElementById('booked-list-container');
+            let keys = Object.keys(storageData);
+
+            if (keys.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-3">ยังไม่มีรายการจองในระบบ</p>`;
+                return;
+            }
+
+            let html = '';
+            keys.forEach(key => {
+                let item = storageData[key];
+                html += `
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                        <div>
+                            <div class="font-bold text-indigo-400">📍 ${key} <span class="text-slate-300 font-normal">| ${item.itemName} (x${item.itemQty})</span></div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">ผู้ยืม: ${item.fullname} (${item.nickname}) • ฝ่าย: ${item.department}</div>
+                            <div class="text-[10px] text-slate-500 mt-0.5">📅 ${item.dateStart} ถึง ${item.dateEnd}</div>
+                        </div>
+                        <button onclick="clearSlotKey('${key}')" class="px-2.5 py-1.5 bg-rose-600/20 text-rose-400 hover:bg-rose-600/30 border border-rose-500/30 rounded-lg text-[11px] transition">
+                            นำออก
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function clearSlotKey(key) {
+            if (confirm(`คุณต้องการนำของออกจากช่อง ${key} ใช่หรือไม่?`)) {
+                delete storageData[key];
+                localStorage.setItem('smorxcu_storage_v2', JSON.stringify(storageData));
+                renderAll();
             }
         }
 
-        function updateUI() {
-            document.querySelectorAll('.slot-card').forEach(card => {
-                let slotId = card.id.replace('slot-', '');
-                const badge = card.querySelector('.status-badge');
-                if (!badge || slotId.includes('Top')) return;
-
-                if (storageData[slotId]) {
-                    card.classList.remove('bg-slate-800/80', 'bg-indigo-950/20');
-                    card.classList.add('bg-rose-950/40', 'border-rose-500/60');
-                    badge.className = 'status-badge text-[9px] px-1.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 font-medium';
-                    badge.innerText = 'เต็ม';
-                } else {
-                    card.classList.remove('bg-rose-950/40', 'border-rose-500/60');
-                    badge.className = 'status-badge text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-medium';
-                    badge.innerText = 'ว่าง';
-                }
-            });
-
-            ['R1-Top1', 'R1-Top2', 'R1-Top3', 'R1-Top4'].forEach(rackId => {
-                let occCount = 0;
-                for (let i = 1; i <= 3; i++) {
-                    if (storageData[`${rackId}-Tier${i}`]) occCount++;
-                }
-                const badgeEl = document.getElementById(`badge-${rackId}`);
-                if (badgeEl) {
-                    if (occCount === 0) {
-                        badgeEl.innerText = 'ว่าง';
-                        badgeEl.className = 'text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-medium';
-                    } else if (occCount === 3) {
-                        badgeEl.innerText = 'เต็ม (3/3)';
-                        badgeEl.className = 'text-[10px] bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full font-medium';
-                    } else {
-                        badgeEl.innerText = `บางส่วน (${occCount}/3)`;
-                        badgeEl.className = 'text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-medium';
-                    }
-                }
-            });
-
-            updateUISelectionState();
-        }
-
+        // Initialize on load
         window.onload = function() {
-            updateUI();
+            renderAll();
         };
     </script>
 </body>
